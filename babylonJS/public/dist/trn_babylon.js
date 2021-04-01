@@ -5633,7 +5633,7 @@ var LevelConverter = /** @class */ (function () {
             "type": "OrthographicCamera",
             "name": "camera1",
             "position": [0, 0, 0],
-            "quaternion": [0, 0, 0, 1]
+            "quaternion": [0, 180, 0, 1]
         });
         this.sc.data.objects['camera1'] = {
             "type": "camera",
