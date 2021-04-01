@@ -12350,7 +12350,7 @@ var SceneParser = /** @class */ (function (_super) {
                 tobject = new _Scene__WEBPACK_IMPORTED_MODULE_3__["default"](object, textureList);
                 break;
 			case 'OrthographicCamera':
-				object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-30000, 30000, 10000, -10000, 0, 5000);
+				object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-30000, 30000, 10000, -10000, 0, 50000);
                 tobject = new _Camera__WEBPACK_IMPORTED_MODULE_1__["default"](object);
                 if (data.focus !== undefined) {
                     object.focus = data.focus;
