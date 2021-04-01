@@ -5630,13 +5630,10 @@ var LevelConverter = /** @class */ (function () {
         }
         this.objects.push({
             "uuid": "camera1",
-            "type": "PerspectiveCamera",
+            "type": "OrthographicCamera",
             "name": "camera1",
-            "fov": this.confMgr.float('camera > fov', true, 50),
-            "near": this.confMgr.float('camera > neardist', true, 50),
-            "far": this.confMgr.float('camera > fardist', true, 10000),
             "position": [0, 0, 0],
-            "quaternion": [0, 0, 0, 1]
+            "quaternion": [0, 180, 0, 1]
         });
         this.sc.data.objects['camera1'] = {
             "type": "camera",
@@ -12351,6 +12348,25 @@ var SceneParser = /** @class */ (function (_super) {
                 }
                 object = new three__WEBPACK_IMPORTED_MODULE_0__["Scene"]();
                 tobject = new _Scene__WEBPACK_IMPORTED_MODULE_3__["default"](object, textureList);
+                break;
+			case 'OrthographicCamera':
+				object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-30000, 30000, -10000, 10000);
+                tobject = new _Camera__WEBPACK_IMPORTED_MODULE_1__["default"](object);
+                if (data.focus !== undefined) {
+                    object.focus = data.focus;
+                }
+                if (data.zoom !== undefined) {
+                    object.zoom = data.zoom;
+                }
+                if (data.filmGauge !== undefined) {
+                    object.filmGauge = data.filmGauge;
+                }
+                if (data.filmOffset !== undefined) {
+                    object.filmOffset = data.filmOffset;
+                }
+                if (data.view !== undefined) {
+                    object.view = Object.assign({}, data.view);
+                }
                 break;
             case 'PerspectiveCamera':
                 object = new three__WEBPACK_IMPORTED_MODULE_0__["PerspectiveCamera"](data.fov, data.aspect, data.near, data.far);

@@ -5210,7 +5210,7 @@ var LevelConverter = /** @class */ (function () {
                 "geometry": !isDummy ? jsonid : null,
                 "material": !isDummy ? materials.map(function (m) { return m.uuid; }) : null,
                 "position": [0, 0, 0],
-                "quaternion": [0, 0, 0, 1],
+                "quaternion": [0, 1, 0, 1],
                 "scale": [1, 1, 1]
             });
             this.sc.data.objects[jsonid] = {
@@ -5630,11 +5630,8 @@ var LevelConverter = /** @class */ (function () {
         }
         this.objects.push({
             "uuid": "camera1",
-            "type": "PerspectiveCamera",
+            "type": "OrthographicCamera",
             "name": "camera1",
-            "fov": this.confMgr.float('camera > fov', true, 50),
-            "near": this.confMgr.float('camera > neardist', true, 50),
-            "far": this.confMgr.float('camera > fardist', true, 10000),
             "position": [0, 0, 0],
             "quaternion": [0, 0, 0, 1]
         });
@@ -12498,6 +12495,9 @@ var SceneParser = /** @class */ (function () {
         for (var o = 0; o < objects.length; ++o) {
             var object = objects[o];
             switch (object.type) {
+				case "OrthographicCamera":
+					this.createOrthoCamera(object);
+					break;
                 case "PerspectiveCamera":
                     this.createCamera(object);
                     break;
@@ -12507,6 +12507,19 @@ var SceneParser = /** @class */ (function () {
             }
         }
     };
+	SceneParser.prototype.createOrthoCamera = function (json) {
+        var camera = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["UniversalCamera"](json.name, new (babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"].bind.apply(babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"], __spread([void 0], json.position)))(), this.tscene.object);
+        camera.rotationQuaternion = new (babylonjs__WEBPACK_IMPORTED_MODULE_0__["Quaternion"].bind.apply(babylonjs__WEBPACK_IMPORTED_MODULE_0__["Quaternion"], __spread([void 0], json.quaternion)))();
+        camera.orthoLeft = -30000;
+		camera.orthoRight = 30000;
+		camera.orthoTop = 10000;
+		camera.orthoBottom = -10000;
+        camera.mode = babylonjs__WEBPACK_IMPORTED_MODULE_0__["Camera"].ORTHOGRAPHIC_CAMERA;
+        camera.inputs.clear();
+        camera.inputs.removeMouse();
+        this.scene.setActiveCameraByName(json.name);
+        this.tscene.setCamera(new _Camera__WEBPACK_IMPORTED_MODULE_1__["default"](camera));
+    };	
     SceneParser.prototype.createCamera = function (json) {
         var camera = new babylonjs__WEBPACK_IMPORTED_MODULE_0__["UniversalCamera"](json.name, new (babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"].bind.apply(babylonjs__WEBPACK_IMPORTED_MODULE_0__["Vector3"], __spread([void 0], json.position)))(), this.tscene.object);
         camera.rotationQuaternion = new (babylonjs__WEBPACK_IMPORTED_MODULE_0__["Quaternion"].bind.apply(babylonjs__WEBPACK_IMPORTED_MODULE_0__["Quaternion"], __spread([void 0], json.quaternion)))();
