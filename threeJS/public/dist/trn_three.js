@@ -9072,10 +9072,7 @@ var ObjectManager = /** @class */ (function () {
             }
             // Set the visibility for the object
             if (_this.gameData.singleRoomMode) {
-                obj.visible = (data.roomIndex == _this.gameData.curRoom || 
-				String(_this.gameData.curRoom).search("-"+String(data.roomIndex)+"-") > -1 
-				//|| String(_this.gameData.curRoom).endsWith("-"+String(data.roomIndex))
-				);
+				obj.visible = _this.gameData.panel._elem.find('#room'+String(data.roomIndex))[0].checked;
             }
             else {
                 obj.visible = data.visible;
@@ -10594,6 +10591,14 @@ var Utils = /** @class */ (function () {
 /*! exports provided: Panel */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+var mouseDown = 0;
+document.body.onmousedown = function() { 
+  mouseDown=1;
+}
+document.body.onmouseup = function() {
+  mouseDown=0;
+}
+		
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Panel", function() { return Panel; });
@@ -10662,14 +10667,6 @@ var Panel = /** @class */ (function () {
         var sceneData = this._parent.sceneData, camera = this._parent.camera, perfData = this._renderer.getPerfData([this._parent.sceneRender, this._parent.sceneBackground]);
         var regularLights = this._parent.curRoom == -1 ? 0 : (this._parent.matMgr.useAdditionalLights ? sceneData.objects['room' + this._parent.curRoom].lightsExt.length : sceneData.objects['room' + this._parent.curRoom].lights.length);
         var globalLights = this._parent.curRoom == -1 || !sceneData.objects['room' + this._parent.curRoom].globalLights ? 0 : sceneData.objects['room' + this._parent.curRoom].globalLights.length;
-        this._elem.find('#currentroom').html(this._parent.curRoom.toString());
-        this._elem.find('#numlights').html('' + regularLights + " - " + globalLights);
-        this._elem.find('#camerapos').html(camera.position[0].toFixed(5) + ',' + camera.position[1].toFixed(5) + ',' + camera.position[2].toFixed(5));
-        this._elem.find('#camerarot').html(camera.quaternion[0].toFixed(5) + ',' + camera.quaternion[1].toFixed(5) + ',' + camera.quaternion[2].toFixed(5) + ',' + camera.quaternion[3].toFixed(5));
-        if (perfData) {
-            this._elem.find('#renderinfo').html(perfData.numDrawCalls + ' / ' + perfData.numFaces + ' / ' + perfData.numObjects + ' / ' + perfData.numParticles);
-            this._elem.find('#memoryinfo').html(perfData.numGeometries + ' / ' + perfData.numPrograms + ' / ' + perfData.numTextures);
-        }
     };
     Panel.prototype.updateFromParent = function () {
         this._elem.find('#singleroommode').prop('checked', this._parent.singleRoomMode);
@@ -10679,7 +10676,20 @@ var Panel = /** @class */ (function () {
         this._elem.on('click', function (e) { e.stopPropagation(); return false; });
 		this._elem.find('#roomnumberselect').on('keyup', function (e) {
 			This._parent.curRoom = e.target.value;
+			
 		});
+		
+		for (var i=0; i<21; i++) {
+			this._elem.find('#room'+String(i)).on('click', function (e) {
+				e.stopPropagation();
+			});
+			this._elem.find('#room'+String(i)).on('mouseover', function (e) {
+				console.log("mo"+String(i));
+				if (mouseDown == 1)
+					this.checked = !this.checked;
+				e.stopPropagation();
+			});
+		}
         this._elem.find('#singleroommode').on('click', function (e) {
             e.stopPropagation();
             This._parent.singleRoomMode = this.checked;
