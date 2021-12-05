@@ -9055,23 +9055,27 @@ var ObjectManager = /** @class */ (function () {
     };
     ObjectManager.prototype.updateObjects = function (curTime) {
         var _this = this;
-        this.gameData.curRoom = -1;
+        //MAX: disable this.gameData.curRoom = -1;
         var camPos = this.camera.position;
         this.sceneRender.traverse(function (obj) {
             var data = _this.sceneData.objects[obj.name];
             if (!data) {
                 return;
             }
+
             // Test camera room membership
             if (data.type == 'room') {
-                if (obj.containsPoint(_this.gameData.camera.position) && !data.isAlternateRoom) {
+                //if (obj.containsPoint(_this.gameData.camera.position) && !data.isAlternateRoom) {
                     //if (!data.isAlternateRoom && this.gameData.trlvl.isPointInRoom(this.gameData.camera.position, data.roomIndex)) {
-                    _this.gameData.curRoom = data.roomIndex;
-                }
+                //    _this.gameData.curRoom = data.roomIndex;
+                // MAX: Disabled auto room num}
             }
             // Set the visibility for the object
             if (_this.gameData.singleRoomMode) {
-                obj.visible = data.roomIndex == _this.gameData.curRoom && !data.isAlternateRoom;
+                obj.visible = (data.roomIndex == _this.gameData.curRoom || 
+				String(_this.gameData.curRoom).search("-"+String(data.roomIndex)+"-") > -1 
+				//|| String(_this.gameData.curRoom).endsWith("-"+String(data.roomIndex))
+				);
             }
             else {
                 obj.visible = data.visible;
@@ -10673,6 +10677,9 @@ var Panel = /** @class */ (function () {
     };
     Panel.prototype.bindEvents = function (This) {
         this._elem.on('click', function (e) { e.stopPropagation(); return false; });
+		this._elem.find('#roomnumberselect').on('keyup', function (e) {
+			This._parent.curRoom = e.target.value;
+		});
         this._elem.find('#singleroommode').on('click', function (e) {
             e.stopPropagation();
             This._parent.singleRoomMode = this.checked;
@@ -11956,8 +11963,11 @@ __webpack_require__.r(__webpack_exports__);
 var Renderer = /** @class */ (function () {
     function Renderer(container) {
         var canvas = document.createElement('canvas'), context = canvas.getContext('webgl2', { alpha: false });
-        this._renderer = new three__WEBPACK_IMPORTED_MODULE_0__["WebGLRenderer"]({ canvas: canvas, context: context, antialias: true });
+        this._renderer = new three__WEBPACK_IMPORTED_MODULE_0__["WebGLRenderer"]({ canvas: canvas, context: 
+		context, antialias: true });
         this._renderer.autoClear = false;
+		//this._renderer.setClearColor(0x1bff0f, 1);
+		this._renderer.setClearColor(0x010101, 1);
         container.appendChild(this._renderer.domElement);
         return this;
     }
@@ -12350,7 +12360,30 @@ var SceneParser = /** @class */ (function (_super) {
                 tobject = new _Scene__WEBPACK_IMPORTED_MODULE_3__["default"](object, textureList);
                 break;
 			case 'OrthographicCamera':
-				object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-30000, 30000, 10000, -10000, 0, 50000);
+				// Standard Zoom
+				object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-35000, 35000, 15000, -15000, 0, 500000);
+				
+				// Detail Zoom
+				//object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-11500, 11500, 5000, -5000, 0, 500000);
+				
+				// GREAT WALL
+				// -0-1-2-3-4-7-5-9-12-13-23-24-25-26-27-28-29-30-31-32-33-34-35-36-37-38-41-42-44-45-46-47-49-50-51-52-53-54-55-56-57-58-59-60-61-62-63-64-65-66-68-69-70-77
+				// ex: -6-8-10-11-13-14-15-16-17-18-19-20-22-40-67-68-72-73-79-15-
+				// OPERA HOUSE THEATER
+				// -5-37-45-47-49-50-51-53-54-55-56-57-58-59-60-61-62-6-63-64-65-66-67-68-69-70-71-72-74-75-76-78
+				// -2-4-11-12-13-14-15-16-17-18-20-41-42-
+				// OFFSHORE RIG
+				// -14-15-16-17-18-19-20-21-22-28-29-30-31-32-33-34-35-36-37-38-42-43-51-80-82-81-59-50-
+				// DIVING AREA
+				// 0.
+				// 40 FATHOMS
+				// -15-16-17-18-19-20-21-22-23-24-25-26-27-28-29-39-31-32-33-34-35-36-37-38-39-40-41-42-43-44-46-47-48-
+				//  
+				// THE DECK
+				// -9-10-15-16-17-18-19-29-21-22-23-24-25
+				// -40-41-42-43-44-45-46-47-48-49-50-51-54-55-56-57-59-60-61-63-64-65-66-67-68
+			
+				
                 tobject = new _Camera__WEBPACK_IMPORTED_MODULE_1__["default"](object);
                 if (data.focus !== undefined) {
                     object.focus = data.focus;
