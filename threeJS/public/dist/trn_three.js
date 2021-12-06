@@ -9072,7 +9072,10 @@ var ObjectManager = /** @class */ (function () {
             }
             // Set the visibility for the object
             if (_this.gameData.singleRoomMode) {
-				obj.visible = _this.gameData.panel._elem.find('#room'+String(data.roomIndex))[0].checked;
+				if (data.roomIndex > -1)
+					obj.visible = _this.gameData.panel._elem.find('#room'+String(data.roomIndex))[0].checked || _this.gameData.panel._elem.find('#room'+String(data.roomIndex))[0].indeterminate;
+				else
+					obj.visible = false;
             }
             else {
                 obj.visible = data.visible;
@@ -10679,14 +10682,21 @@ var Panel = /** @class */ (function () {
 			
 		});
 		
-		for (var i=0; i<21; i++) {
+		// TODO: Hover over to display, click to 'lock' on
+		for (var i=0; i<201; i++) {
 			this._elem.find('#room'+String(i)).on('click', function (e) {
 				e.stopPropagation();
 			});
 			this._elem.find('#room'+String(i)).on('mouseover', function (e) {
-				console.log("mo"+String(i));
 				if (mouseDown == 1)
-					this.checked = !this.checked;
+					e.target.checked = !e.target.checked;
+				e.target.indeterminate = true;
+				e.stopPropagation();
+			});
+			this._elem.find('#room'+String(i)).on('mouseout', function (e) {
+				if (mouseDown == 1)
+					e.target.checked = !e.target.checked;
+				e.target.indeterminate = false;
 				e.stopPropagation();
 			});
 		}
