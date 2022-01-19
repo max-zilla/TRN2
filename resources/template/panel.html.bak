@@ -12,7 +12,7 @@
 		</tr>
 		<tr>
 			<td class="panelhdr">No lighting</td><td class="panelval"><input type="checkbox" id="nolights"/>
-			Hide box = Enter, LockView = RMB
+			Hide box = Enter
 			</td>
 		</tr>
 		<tr>
