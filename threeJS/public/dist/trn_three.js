@@ -1239,7 +1239,7 @@ var BasicControl = /** @class */ (function (_super) {
         glMatrix.quat.mul(quat, q, quat);
         glMatrix.vec3.transformQuat(v, translate, quat);
         this.object.setQuaternion(quat);
-        var pos = this.object.position;
+		var pos = this.object.position;
         this.object.setPosition([pos[0] + v[0], pos[1] + v[1], pos[2] + v[2]]);
     };
     BasicControl.prototype.pointerLockChange = function () {
@@ -3332,6 +3332,7 @@ var Lara = /** @class */ (function (_super) {
             camPos[0] += v3[0];
             camPos[1] += v3[1];
             camPos[2] += v3[2];
+			console.log(camPos)
             this.gameData.camera.setPosition(camPos);
             this.gameData.camera.setQuaternion(laraQuat);
             if (startAnim !== undefined) {
@@ -11987,7 +11988,7 @@ var Renderer = /** @class */ (function () {
 		context, antialias: true });
         this._renderer.autoClear = false;
 		//this._renderer.setClearColor(0x1bff0f, 1);
-		this._renderer.setClearColor(0x010101, 1);
+		this._renderer.setClearColor(0x414141, 1);
         container.appendChild(this._renderer.domElement);
         return this;
     }
@@ -12379,13 +12380,17 @@ var SceneParser = /** @class */ (function (_super) {
                 object = new three__WEBPACK_IMPORTED_MODULE_0__["Scene"]();
                 tobject = new _Scene__WEBPACK_IMPORTED_MODULE_3__["default"](object, textureList);
                 break;
-			case 'OrthographicCamera':
-				// Standard Zoom
-				object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-35000, 35000, 15000, -15000, 0, 500000);
-				
-				// Detail Zoom
-				//object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-11500, 11500, 5000, -5000, 0, 500000);
-			
+            case 'OrthographicCamera':
+                // CTRL+SHIFT+R after changing these
+                // Standard Zoom
+                object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-35000, 35000, 15000, -15000, 0, 500000);
+                
+                // Detail Zoom-In
+                //object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-11500, 11500, 5000, -5000, 0, 500000);
+                
+                // Overview Zoom-Out
+                // object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-65000, 65000, 30000, -30000, 0, 500000);
+                
                 tobject = new _Camera__WEBPACK_IMPORTED_MODULE_1__["default"](object);
                 if (data.focus !== undefined) {
                     object.focus = data.focus;
