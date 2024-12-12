@@ -10,6 +10,7 @@ import MeshBuilder from "./MeshBuilder";
 import Node from "./Node";
 import Renderer from "./Renderer";
 import SceneParser from "./SceneParser";
+import LevelLoader from "../../SceneParser";
 
 declare var glMatrix: any;
 

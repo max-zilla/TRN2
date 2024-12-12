@@ -5,5 +5,8 @@
   "scripts": {
     "dev": "node ../node_modules/webpack-dev-server/bin/webpack-dev-server.js",
     "build": "node ../node_modules/webpack/bin/webpack.js"
+  },
+  "dependencies": {
+    "watch": "^1.0.2"
   }
 }

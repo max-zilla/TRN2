@@ -8,6 +8,7 @@ import TR1TubDescr from "./LevelDescription/TR1Tub";
 import TR2Descr from "./LevelDescription/TR2";
 import TR3Descr from "./LevelDescription/TR3";
 import TR4Descr from "./LevelDescription/TR4";
+import TR5Descr from "./LevelDescription/TR5";
 import { ConfigManager } from "../ConfigManager";
 
 declare var DataStream: any;
@@ -18,6 +19,7 @@ const gameFormatDescr: any = {
     "TR2":      TR2Descr,
     "TR3":      TR3Descr,
     "TR4":      TR4Descr,
+    "TR5":      TR5Descr,
 };
 
 export enum levelVersion {
@@ -25,6 +27,7 @@ export enum levelVersion {
     TR2 = "TR2",
     TR3 = "TR3",
     TR4 = "TR4",
+    TR5 = "TR5"
 }
 
 export interface RawLevel {
@@ -78,7 +81,13 @@ export class LevelLoader {
             case 0xFF080038: rversion = 'TR3'; break;
             case 0xFF180034: rversion = 'TR3'; break;
             case 0xFF180038: rversion = 'TR3'; break;
-            case 0x00345254: rversion = 'TR4'; break;
+            case 0x00345254: {
+                if (fname.toLowerCase().indexOf('.trc') >= 0)
+                    rversion = 'TR5';
+                else
+                    rversion = 'TR4'; 
+                break;
+            }
         }
         ds.seek(0);
 
@@ -88,9 +97,11 @@ export class LevelLoader {
         }
 
         try {
+            console.log('here we go')
+            console.log(rversionLoader)
             let out = ds.readStruct(gameFormatDescr[rversionLoader].part1);
 
-            //console.log('first part ok', out);
+            console.log('first part ok', out);
 
             const savepos = ds.position;
 
@@ -113,11 +124,11 @@ export class LevelLoader {
 
             ds.position = savepos2;
 
-            //console.log('second part ok', out);
+            console.log('second part ok', out);
 
             const nextPart = ds.readStruct(gameFormatDescr[rversionLoader].part3);
 
-            //console.log('third part ok', out);
+            console.log('third part ok', out);
 
             for (let attr in nextPart) {
                 out[attr] = nextPart[attr];

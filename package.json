@@ -26,12 +26,12 @@
     "ts-loader": "^6.1.0",
     "tslint": "^5.20.0",
     "typescript": "^3.6.3",
-    "webpack": "^4.40.2",
-    "webpack-cli": "^3.3.8",
+    "webpack": "^5",
     "webpack-dev-server": "^3.8.0"
   },
   "devDependencies": {
     "@types/jquery": "^3.3.31",
-    "@types/pako": "^1.0.1"
+    "@types/pako": "^1.0.1",
+    "webpack-cli": "^5.1.4"
   }
 }

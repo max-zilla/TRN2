@@ -86,22 +86,23 @@
 
 <div id="container">
 	<span id="logo"><img src="resources/picture/logo.png"/></span>
-	<select id="engine">
+	<select id="engine" value="threeJS">
         <option value="babylonJS">Babylon.js</option>
         <option value="threeJS">Threejs</option>
     </select>
-    <select id="trgame">
+    <select id="trgame" value="TR5>
 		<option value="TR1">Tomb Raider 1</option>
 		<option value="TR2">Tomb Raider 2</option>
 		<option value="TR3">Tomb Raider 3</option>
 		<option value="TR4">Tomb Raider 4</option>
 		<option value="TR4Cut">Tomb Raider 4 Cut Scenes</option>
+        <option value="TR5">Tomb Raider 5</option>
 	</select>
 	<div id="levels"></div>
 </div>
 
 <script>
-	let game = 'TR1', qs = QueryString();
+	let game = 'TR5', qs = QueryString();
 
     const CutsceneTR4 = [
         { "file": "angkor1.tr4",    "description": "Young Lara appearing from behind Von Croy at level start",                      "index": 6  },

@@ -38,8 +38,8 @@ module.exports = {
         contentBase: ['./public/', '../'],
         filename: 'trn_three.js',
         publicPath: '/dist/',
-        hot: false,
-        inline: false,
-        liveReload: false
+        hot: true,
+        inline: true,
+        liveReload: true
     }
 }
