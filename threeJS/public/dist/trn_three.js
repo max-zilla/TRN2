@@ -3265,7 +3265,7 @@ var Lara = /** @class */ (function (_super) {
         _Constants__WEBPACK_IMPORTED_MODULE_3__.ObjectID.PistolAnim = this.nbhv.animobject && this.nbhv.animobject.pistol ? parseInt(this.nbhv.animobject.pistol) : -1;
         var mvbPistolAnim = this.objMgr.createMoveable(_Constants__WEBPACK_IMPORTED_MODULE_3__.ObjectID.PistolAnim, -1, undefined, true, dataLara.skeleton);
         if (mvbPistolAnim) {
-            if (this.confMgr.trversion == 'TR4') {
+            if (this.confMgr.trversion == 'TR4' || this.confMgr.trversion == 'TR5') {
                 // for some reason, pistol animation mesh is only for left hand in TR4... So copy it to do right hand animation
                 var meshb = _Proxy_Engine__WEBPACK_IMPORTED_MODULE_0__["default"].makeMeshBuilder(mvbPistolAnim);
                 meshb.copyFacesWithSkinIndex(_Player_Skeleton__WEBPACK_IMPORTED_MODULE_5__.BONE.ARM_L3, _Player_Skeleton__WEBPACK_IMPORTED_MODULE_5__.BONE.ARM_R3);
@@ -3307,7 +3307,7 @@ var Lara = /** @class */ (function (_super) {
         }
         layer.update();
         layer.setBoundingObjects();
-        if (this.confMgr.trversion == 'TR4') {
+        if (this.confMgr.trversion == 'TR4' || this.confMgr.trversion == 'TR5') {
             if (mvbHolsterFull) {
                 layer.updateMask(_Player_Layer__WEBPACK_IMPORTED_MODULE_4__.LAYER.HOLSTER_FULL, _Player_Skeleton__WEBPACK_IMPORTED_MODULE_5__.MASK.LEG_L1 | _Player_Skeleton__WEBPACK_IMPORTED_MODULE_5__.MASK.LEG_R1);
             }
@@ -3721,10 +3721,12 @@ var Ponytail = /** @class */ (function (_super) {
     Ponytail.prototype.init = function (lstObjs) {
         var id = this.nbhv.id, offsets_ = this.nbhv.offsets.offset, offsets = Array.isArray(offsets_) ? offsets_ : [offsets_], fixToHead = this.nbhv.fixtohead === 'true';
         _Constants__WEBPACK_IMPORTED_MODULE_3__.ObjectID.LaraBraid = parseInt(id);
-        var lara = this.gameData.bhvMgr.getBehaviour("Lara")[0].getObject();
-        for (var i = 0; i < offsets.length; ++i) {
-            var offset = __assign({ "x": "0", "y": "0", "z": "0" }, offsets[i]);
-            this._braids.push(new _Player_Braid__WEBPACK_IMPORTED_MODULE_2__.Braid(lara, [parseFloat(offset.x), parseFloat(offset.y), parseFloat(offset.z)], this.gameData, fixToHead));
+        if (this.gameData.bhvMgr.getBehaviour("Lara") != undefined) {
+            var lara = this.gameData.bhvMgr.getBehaviour("Lara")[0].getObject();
+            for (var i = 0; i < offsets.length; ++i) {
+                var offset = __assign({ "x": "0", "y": "0", "z": "0" }, offsets[i]);
+                this._braids.push(new _Player_Braid__WEBPACK_IMPORTED_MODULE_2__.Braid(lara, [parseFloat(offset.x), parseFloat(offset.y), parseFloat(offset.z)], this.gameData, fixToHead));
+            }
         }
         return [_Behaviour__WEBPACK_IMPORTED_MODULE_0__.BehaviourRetCode.keepBehaviour, null];
     };
@@ -4740,14 +4742,24 @@ var LevelConverter = /** @class */ (function () {
         }
         for (var m = 0; m < this.sc.data.trlevel.rooms.length; ++m) {
             var room = this.sc.data.trlevel.rooms[m], alternate = room.alternateRoom;
-            if (alternate != -1) {
+            if (alternate != -1 && alternate != 65535) {
                 this.sc.data.trlevel.rooms[alternate].isAlternate = true;
             }
         }
         var maxLightsInRoom = 0, roomL = -1;
         // generate the rooms
         for (var m = 0; m < this.sc.data.trlevel.rooms.length; ++m) {
-            var room = this.sc.data.trlevel.rooms[m], info = room.info, rdata = room.roomData, rflags = room.flags, lightMode = room.lightMode, isFilledWithWater = (rflags & 1) != 0, isFlickering = (lightMode == 1);
+            var room = this.sc.data.trlevel.rooms[m], info = room.info, rflags = room.flags, lightMode = room.lightMode, isFilledWithWater = (rflags & 1) != 0, isFlickering = (lightMode == 1);
+            if (!room.roomData)
+                var rdata = room;
+            else
+                var rdata = room.roomData; 
+            
+            // Skip TR5 null rooms?
+            if (rdata.numRectangles == 3452816845) {
+                console.log("nully")
+            }
+            
             var roomMesh = {
                 "uuid": "room" + m,
                 "type": "Mesh",
@@ -4775,7 +4787,7 @@ var LevelConverter = /** @class */ (function () {
                 roomL = m;
             }
             var ambientColor = glMatrix.vec3.create();
-            if (this.sc.data.trlevel.rversion != 'TR4') {
+            if (this.sc.data.trlevel.rversion != 'TR4' && this.sc.data.trlevel.rversion != 'TR5') {
                 var ambient1 = 1.0 - room.ambientIntensity1 / 0x2000;
                 glMatrix.vec3.set(ambientColor, ambient1, ambient1, ambient1);
             }
@@ -4813,7 +4825,7 @@ var LevelConverter = /** @class */ (function () {
                         fadeOut = light.fade;
                         break;
                     }
-                    case 'TR4': {
+                    case 'TR4' || 'TR5': {
                         if (light.lightType > 2) {
                             // todo: handling of shadow / fog bulb lights
                             //console.log('light not handled because of type ' + light.lightType + ' in room ' + m, room)
@@ -4889,8 +4901,61 @@ var LevelConverter = /** @class */ (function () {
                 roomJSON.colors.push(vertexInfo.color2[0], vertexInfo.color2[1], vertexInfo.color2[2]);
                 roomJSON._flags.push(vertexInfo.flag[0], vertexInfo.flag[1], vertexInfo.flag[2], vertexInfo.flag[3]);
             }
+            rdata.rectangles = [];
+            rdata.triangles = [];
             // create the tri/quad faces
-            this.helper.makeFaces(roomJSON, [rdata.rectangles, rdata.triangles], tiles2material, this.sc.data.trlevel.objectTextures, this.sc.data.trlevel.mapObjTexture2AnimTexture, 0);
+            if (this.sc.data.trlevel.rversion == 'TR5') {
+                // Collect faces from the layers
+                var faceStart = 0;
+                for (var v = 0; v < rdata.layerData.length; ++v) {
+                    var rlayer = rdata.layerData[v];
+                    for (var vr = 0; vr < rlayer.numLayerRectangles; ++vr) {
+                        rdata.rectangles.push({
+                            'vertices': [
+                                rdata.faces[faceStart],
+                                rdata.faces[faceStart + 1],
+                                rdata.faces[faceStart + 2],
+                                rdata.faces[faceStart + 3]
+                            ],
+                            'texture': rdata.faces[faceStart + 4]
+                        });
+                        faceStart += 6;
+                    }
+                    for (var vt = 0; vt < rlayer.numLayerTriangles; ++vt) {
+                        rdata.triangles.push({
+                            'vertices': [
+                                rdata.faces[faceStart],
+                                rdata.faces[faceStart + 1],
+                                rdata.faces[faceStart + 2],
+                            ],
+                            'texture': rdata.faces[faceStart + 3]
+                        });
+                        faceStart += 5;
+                    }
+                }
+                // Convert vertices from float to int16
+                this.helper.makeFacesTR5(roomJSON, [rdata.rectangles, rdata.triangles], tiles2material, this.sc.data.trlevel.objectTextures, this.sc.data.trlevel.mapObjTexture2AnimTexture, 0);
+            /*
+                    if (ofstvert === void 0) { ofstvert = 0; }
+                    for (var a = 0; a < facearrays.length; ++a) {
+                        var lstface = facearrays[a];
+                        var _loop_1 = function (i) {
+                            var o = lstface[i], twoSided = (o.texture & 0x8000) != 0, tex = objectTextures[o.texture & 0x7FFF];
+                            this_1.makeFace(obj, o, tiles2material, tex, mapObjTexture2AnimTexture, function (idx) { return o.vertices.length - 1 - idx; }, ofstvert);
+                            if (twoSided) {
+                                this_1.makeFace(obj, o, tiles2material, tex, mapObjTexture2AnimTexture, function (idx) { return idx; }, ofstvert);
+                            }
+                        };
+                        var this_1 = this;
+                        for (var i = 0; i < lstface.length; ++i) {
+                            _loop_1(i);
+                        }
+                    }
+            */
+            
+            }
+            else
+                this.helper.makeFaces(roomJSON, [rdata.rectangles, rdata.triangles], tiles2material, this.sc.data.trlevel.objectTextures, this.sc.data.trlevel.mapObjTexture2AnimTexture, 0);
             var materials = this.helper.makeMaterialList(tiles2material, 'room', 'room' + m);
             (_a = this.sc.materials).push.apply(_a, __spread(materials));
             // add the room geometry to the scene
@@ -4956,7 +5021,7 @@ var LevelConverter = /** @class */ (function () {
                         frameData += 65536;
                     }
                     if ((frameData & 0xC000) && (this.sc.data.trlevel.rversion != 'TR1')) { // single axis of rotation
-                        var angle = this.sc.data.trlevel.rversion == 'TR4' ? (frameData & 0xFFF) >> 2 : frameData & 0x3FF;
+                        var angle = (this.sc.data.trlevel.rversion == 'TR4' || this.sc.data.trlevel.rversion == 'TR5') ? (frameData & 0xFFF) >> 2 : frameData & 0x3FF;
                         angle *= 360.0 / 1024.0;
                         switch (frameData & 0xC000) {
                             case 0x4000:
@@ -5096,12 +5161,12 @@ var LevelConverter = /** @class */ (function () {
                 }
                 var mesh = this.sc.data.trlevel.meshes[meshIndex];
                 var isDummyMesh = true;
-                if (!mesh.dummy || (mesh.dummy && (((trType == 'TR3' || trType == 'TR4') && objIDForVisu == 1 && idx == 1) ||
+                if (!mesh.dummy || (mesh.dummy && (((trType == 'TR3' || trType == 'TR4' || trType == 'TR5') && objIDForVisu == 1 && idx == 1) ||
                     ((trType == 'TR1' || trType == 'TR2') && objIDForVisu == 0) ||
                     (trType == 'TR1' && objIDForVisu == 77)))) {
                     isDummyMesh = false;
                 }
-                if ((isDummyMesh && trType == 'TR4') || (idx == 0 && trType == 'TR4' && moveableGeom.objectID == _Constants__WEBPACK_IMPORTED_MODULE_0__.ObjectID.LaraJoints)) {
+                if ((isDummyMesh && (trType == 'TR4' || trType == 'TR5')) || (idx == 0 && (trType == 'TR4' || trType == 'TR5') && moveableGeom.objectID == _Constants__WEBPACK_IMPORTED_MODULE_0__.ObjectID.LaraJoints)) {
                     // dummy mesh + hack to remove bad data from joint #0 of Lara joints in TR4
                 }
                 else {
@@ -5366,7 +5431,7 @@ var LevelConverter = /** @class */ (function () {
             normals[dst * 3 + 1] = normals[src * 3 + 1];
             normals[dst * 3 + 2] = normals[src * 3 + 2];
         }
-        if (this.sc.data.trlevel.rversion == 'TR4') {
+        if (this.sc.data.trlevel.rversion == 'TR4' || this.sc.data.trlevel.rversion == 'TR5') {
             if (!young) {
                 if (fixToHead) {
                     this.weldSkinJoints(braidId, braidId, true, false);
@@ -5584,7 +5649,7 @@ var LevelConverter = /** @class */ (function () {
         this.createAnimations();
         this.createVertexNormals();
         this.makeLaraBraid();
-        if (this.sc.data.trlevel.rversion == 'TR4') {
+        if (this.sc.data.trlevel.rversion == 'TR4' || this.sc.data.trlevel.rversion == 'TR5') {
             this.makeSkinnedLara();
         }
         this.makeGeometryData();
@@ -5752,6 +5817,22 @@ var LevelConverterHelper = /** @class */ (function () {
                 lighting = b + (g << 8) + (r << 16);
                 break;
             }
+            case 'TR5': {
+                // TR5Light
+                var lighting = rvertex.lighting2;
+                var r = (lighting & 0x00ff0000) >> 16,  g = (lighting & 0x0000ff00) >> 8, b = (lighting & 0x000000ff);
+                if (r > 128) {
+                    r = 128;
+                }
+                if (g > 128) {
+                    g = 128;
+                }
+                if (b > 128) {
+                    b = 128;
+                }
+                lighting = b + (g << 8) + (r << 16);
+                break;
+            }
         }
         var moveLight = (attribute & 0x4000) ? 1 : 0, moveVertex = (attribute & 0x2000) ? 1 : 0, strengthEffect = ((attribute & 0x1E) - 16) / 16;
         if (moveVertex) {
@@ -5842,6 +5923,80 @@ var LevelConverterHelper = /** @class */ (function () {
         face.matIndex = imat;
         obj.faces.push(face);
     };
+    LevelConverterHelper.prototype.makeFaceTR5 = function (obj, oface, tiles2material, tex, mapObjTexture2AnimTexture, fidx, ofstvert) {
+        if (tex == undefined)
+            return
+        var vertices = oface.vertices, texture = oface.texture & 0x7FFF, tile = tex.tile & 0x7FFF, origTile = tex.origTile;
+        if (origTile == undefined) {
+            origTile = tile;
+        }
+        var minU = 1, minV = 1, maxV = 0;
+        for (var tv = 0; tv < vertices.length; ++tv) {
+            var u = (tex.vertices[fidx(tv)].Xpixel + 0.5) / this.sc.data.trlevel.atlas.width, v = (tex.vertices[fidx(tv)].Ypixel + 0.5) / this.sc.data.trlevel.atlas.height;
+            if (minU > u) {
+                minU = u;
+            }
+            if (minV > v) {
+                minV = v;
+            }
+            if (maxV < v) {
+                maxV = v;
+            }
+        }
+        // material
+        var imat, alpha = (tex.attributes & 2 || oface.effects & 1) ? 'alpha' : '';
+        if (mapObjTexture2AnimTexture && mapObjTexture2AnimTexture[texture]) {
+            var animTexture = mapObjTexture2AnimTexture[texture], matName = 'anmtext' + alpha + '_' + animTexture.idxAnimatedTexture + '_' + animTexture.pos;
+            imat = tiles2material[matName];
+            if (typeof (imat) == 'undefined') {
+                imat = _Utils_Misc__WEBPACK_IMPORTED_MODULE_0__["default"].objSize(tiles2material);
+                tiles2material[matName] = { imat: imat, tile: tile, minU: minU, minV: minV, origTile: origTile };
+            }
+            else {
+                imat = imat.imat;
+            }
+        }
+        else if (alpha) {
+            imat = tiles2material['alpha' + tile];
+            if (typeof (imat) == 'undefined') {
+                imat = _Utils_Misc__WEBPACK_IMPORTED_MODULE_0__["default"].objSize(tiles2material);
+                tiles2material['alpha' + tile] = { imat: imat, tile: tile, minU: minU, minV: minV, origTile: origTile };
+            }
+            else {
+                imat = imat.imat;
+            }
+        }
+        else if (origTile >= this.sc.data.trlevel.numRoomTextiles + this.sc.data.trlevel.numObjTextiles) {
+            imat = tiles2material['bump' + origTile];
+            if (typeof (imat) == 'undefined') {
+                imat = _Utils_Misc__WEBPACK_IMPORTED_MODULE_0__["default"].objSize(tiles2material);
+                tiles2material['bump' + origTile] = { imat: imat, tile: tile, minU: minU, minV: minV, origTile: origTile };
+            }
+            else {
+                imat = imat.imat;
+            }
+        }
+        else {
+            imat = tiles2material[tile];
+            if (typeof (imat) == 'undefined') {
+                imat = _Utils_Misc__WEBPACK_IMPORTED_MODULE_0__["default"].objSize(tiles2material);
+                tiles2material[tile] = { imat: imat, tile: tile, minU: minU, minV: minV, origTile: origTile };
+            }
+            else {
+                imat = imat.imat;
+            }
+        }
+        var face = [];
+        for (var tv = 0; tv < vertices.length; ++tv) {
+            var u = (tex.vertices[fidx(tv)].Xpixel + 0.5) / this.sc.data.trlevel.atlas.width, v = (tex.vertices[fidx(tv)].Ypixel + 0.5) / this.sc.data.trlevel.atlas.height;
+            if (obj.objHasScrollAnim && v == maxV) {
+                v = minV + (maxV - minV) / 2;
+            }
+            face.push({ "u": u, "v": v, "idx": vertices[fidx(tv)] + ofstvert });
+        }
+        face.matIndex = imat;
+        obj.faces.push(face);
+    };
     LevelConverterHelper.prototype.makeFaces = function (obj, facearrays, tiles2material, objectTextures, mapObjTexture2AnimTexture, ofstvert) {
         if (ofstvert === void 0) { ofstvert = 0; }
         for (var a = 0; a < facearrays.length; ++a) {
@@ -5851,6 +6006,24 @@ var LevelConverterHelper = /** @class */ (function () {
                 this_1.makeFace(obj, o, tiles2material, tex, mapObjTexture2AnimTexture, function (idx) { return o.vertices.length - 1 - idx; }, ofstvert);
                 if (twoSided) {
                     this_1.makeFace(obj, o, tiles2material, tex, mapObjTexture2AnimTexture, function (idx) { return idx; }, ofstvert);
+                }
+            };
+            var this_1 = this;
+            for (var i = 0; i < lstface.length; ++i) {
+                _loop_1(i);
+            }
+        }
+    };
+    LevelConverterHelper.prototype.makeFacesTR5 = function (obj, facearrays, tiles2material, objectTextures, mapObjTexture2AnimTexture, ofstvert) {
+        // (roomJSON, [rdata.rectangles, rdata.triangles], tiles2material, this.sc.data.trlevel.objectTextures, this.sc.data.trlevel.mapObjTexture2AnimTexture, 0);
+        if (ofstvert === void 0) { ofstvert = 0; }
+        for (var a = 0; a < facearrays.length; ++a) {
+            var lstface = facearrays[a];
+            var _loop_1 = function (i) {
+                var o = lstface[i], twoSided = (o.texture & 0x8000) != 0, tex = objectTextures[o.texture & 0x7FFF];
+                this_1.makeFaceTR5(obj, o, tiles2material, tex, mapObjTexture2AnimTexture, function (idx) { return o.vertices.length - 1 - idx; }, ofstvert);
+                if (twoSided) {
+                    this_1.makeFaceTR5(obj, o, tiles2material, tex, mapObjTexture2AnimTexture, function (idx) { return idx; }, ofstvert);
                 }
             };
             var this_1 = this;
@@ -7449,7 +7622,12 @@ var descr = {
             'xela', ['', 'uint8', 4],
             'roomDataSize', 'uint32',
             '', function (dataStream, struct) {
-                console.log("------------ ROOM START POS: " + dataStream.position)
+                return '';
+            },
+            '',
+            function (dataStream, struct) {
+                //console.log("ROOM START: " + dataStream.position + " -> END " + (dataStream.position + struct.roomDataSize));
+                //console.log(struct)
                 return '';
             },
             'NA', 'uint32',
@@ -7489,17 +7667,14 @@ var descr = {
             'polyOffset2', 'uint32',
             'numVertices', 'uint32',
             'NA', ['', 'uint32', 4],
-            // end tr5_room_header
-            '', function (dataStream, struct) {
-                console.log(struct.xela)
-                console.log(struct)
-                console.log(struct.roomDataSize);
-                const startAddr = dataStream.position - 208;
-                console.log(startAddr + " -> " + (startAddr + struct.roomDataSize));
-                console.log('vertices addr: ' + (dataStream.position + struct.verticesOffset))
-                console.log(struct.numVertices / 28);
+            '',
+            function (dataStream, struct) {
+                //console.log("OFFSETS FROM HERE: "+dataStream.position);
+                //console.log("Expected layer addr: " + dataStream.position + " + " + struct.layerOffset + " = " + (dataStream.position + struct.layerOffset));
+                //console.log("Expected vert addr: " + dataStream.position + " + " + struct.verticesOffset + " = " + (dataStream.position + struct.verticesOffset));
                 return '';
             },
+            // end tr5_room_header
             'lights', ['', [
                     'x', 'float32',
                     'y', 'float32',
@@ -7550,6 +7725,20 @@ var descr = {
                     'unused', 'uint16',
                     'objectID', 'uint16'
                 ], 'numStaticMeshes'],
+            '',
+            function (dataStream, struct) {
+                var meshSize = struct.numStaticMeshes * 20;
+                var portalSize = struct.numPortals * 32;
+                var lightSize = struct.numLights * 88;
+                var sectorSize = struct.numZsectors * struct.numXsectors * 8;
+                
+                var totLayerOffset = meshSize + portalSize + lightSize + sectorSize + 4;
+                var layerGap =  struct.layerOffset - totLayerOffset;
+                
+                //console.log("layer adjust: " + dataStream.position + " -> " + (dataStream.position + layerGap));
+                dataStream.position += layerGap;
+                return ''; 
+            },
             'layerData', ['', [
                     'numLayerVertices', 'uint16',
                     'NA', ['', 'uint16', 2],
@@ -7581,13 +7770,14 @@ var descr = {
                 var portalSize = struct.numPortals * 32;
                 var lightSize = struct.numLights * 88;
                 var sectorSize = struct.numZsectors * struct.numXsectors * 8;
-                var headerSize = 208;
                 
-                var startAddr = dataStream.position - headerSize - faceSize - layerSize - meshSize - portalSize - lightSize - sectorSize - 4;
-                console.log("START 1: " + startAddr)
-                var byteGap = (startAddr + headerSize + struct.verticesOffset) - dataStream.position;
-                console.log("Adjusting " + dataStream.position + " to " + (dataStream.position + byteGap) + " ("+ byteGap+")");
-                dataStream.position += byteGap;
+                var totLayerOffset = meshSize + portalSize + lightSize + sectorSize + 4;
+                var layerGap =  struct.layerOffset - totLayerOffset;
+                var totVertOffset = faceSize + layerSize + totLayerOffset + layerGap;
+                var vertGap =  struct.verticesOffset - totVertOffset;
+                
+                //console.log("verts adjust: " + dataStream.position + " -> " + (dataStream.position + vertGap));
+                dataStream.position += vertGap;
                 return ''; 
             },
             'vertices', ['', [
@@ -7600,24 +7790,28 @@ var descr = {
                 }],
             '', 
             function (dataStream, struct) { 
-                var faceSize = ((struct.numRectangles * 6) + (struct.numTriangles * 5)) * 2
+                if (struct.numRectangles < 3452816845)
+                    var faceSize = ((struct.numRectangles * 6) + (struct.numTriangles * 5)) * 2;
+                else
+                    var faceSize = 0;
                 var layerSize = struct.numLayers * 56;
                 var meshSize = struct.numStaticMeshes * 20;
                 var portalSize = struct.numPortals * 32;
                 var lightSize = struct.numLights * 88;
                 var sectorSize = struct.numZsectors * struct.numXsectors * 8;
-                var headerSize = 208;
                 
-                var startAddr2 = dataStream.position - struct.numVertices - struct.verticesOffset - headerSize;
-                console.log("START 2: " + startAddr2)
-                var byteGap = (startAddr2 + struct.roomDataSize) - dataStream.position;
-                dataStream.position += byteGap;
+                var totLayerOffset = meshSize + portalSize + lightSize + sectorSize + 4;
+                var layerGap =  struct.layerOffset - totLayerOffset;
+                var totVertOffset = faceSize + layerSize + totLayerOffset + layerGap;
+                var vertGap =  struct.verticesOffset - totVertOffset;
+                var totRoomOffset = struct.numVertices + totVertOffset + vertGap + 208;
+                var roomGap = struct.roomDataSize - totRoomOffset;
+                
+                //console.log("end adjust: " + dataStream.position + " -> " + (dataStream.position + roomGap));
+                dataStream.position += roomGap;
                 return ''; 
             },
         ], 'numRooms'],
-        
-    ],
-    part1b: [
         'numFloorData', 'uint32',
         'floorData', ['', 'uint16', 'numFloorData'],
         'numMeshData', 'uint32'
@@ -7699,7 +7893,8 @@ var descr = {
                 'startingMesh', 'uint16',
                 'meshTree', 'uint32',
                 'frameOffset', 'uint32',
-                'animation', 'uint16'
+                'animation', 'uint16',
+                'NA', 'uint16'
             ], 'numMoveables'],
         'numStaticMeshes', 'uint32',
         'staticMeshes', ['', [
@@ -7708,7 +7903,7 @@ var descr = {
                 'boundingBox', ['', ['minx', 'int16', 'maxx', 'int16', 'miny', 'int16', 'maxy', 'int16', 'minz', 'int16', 'maxz', 'int16'], 2],
                 'flags', 'uint16'
             ], 'numStaticMeshes'],
-        'spr', ['', 'uint8', 3],
+        'spr', ['', 'uint8', 4],
         'numSpriteTextures', 'uint32',
         'spriteTextures', ['', [
                 'tile', 'uint16',
@@ -7735,6 +7930,9 @@ var descr = {
                 'room', 'int16',
                 'flag', 'uint16'
             ], 'numCameras'],
+        '', function (dataStream, struct) {
+            return '';
+        },
         'numFlybyCameras', 'uint32',
         'flybyCameras', ['', [
                 'x', 'int32',
@@ -7775,7 +7973,7 @@ var descr = {
         'numAnimatedTextures', 'uint32',
         'animatedTextures', ['', 'uint16', 'numAnimatedTextures'],
         'animatedTexturesUVCount', 'uint8',
-        'tex', ['', 'uint8', 3],
+        'tex', ['', 'uint8', 4],
         'numObjectTextures', 'uint32',
         'objectTextures', ['', [
                 'attributes', 'uint16',
@@ -7813,15 +8011,15 @@ var descr = {
         'numDemoData', 'uint16',
         'demoData', ['', 'uint8', 'numDemoData'],
         'soundMap', ['', 'int16', 450],
-        'numSoundDetails', 'uint32',
-        'soundDetails', ['', [
-                'sample', 'int16',
-                'volume', 'int16',
-                'unknown1', 'int16',
-                'unknown2', 'int16'
-            ], 'numSoundDetails'],
-        'numSampleIndices', 'uint32',
-        'sampleIndices', ['', 'uint32', 'numSampleIndices']
+        //'numSoundDetails', 'uint32',
+        //'soundDetails', ['', [
+        //        'sample', 'int16',
+        //        'volume', 'int16',
+        //        'unknown1', 'int16',
+        //        'unknown2', 'int16'
+        //    ], 'numSoundDetails'],
+        //'numSampleIndices', 'uint32',
+        //'sampleIndices', ['', 'uint32', 'numSampleIndices']
         // we don't read the sample data
     ]
 };
@@ -7935,10 +8133,6 @@ var LevelLoader = /** @class */ (function () {
             var out = ds.readStruct(gameFormatDescr[rversionLoader].part1);
             console.log('first part ok', out);
             var savepos = ds.position;
-            
-            var raw_struct = gameFormatDescr[rversionLoader].part1b;
-            var out = ds.readStruct(raw_struct);
-            console.log('firstB part ok', out);
 
             var savepos = ds.position;
             ds.position += out.numMeshData * 2;
@@ -7957,6 +8151,11 @@ var LevelLoader = /** @class */ (function () {
             console.log('second part ok', out);
             var nextPart = ds.readStruct(gameFormatDescr[rversionLoader].part3);
             console.log('third part ok', out);
+            out.numSoundDetails = 0;
+            out.soundDetails = [];
+            out.numSampleIndices = 0;
+            out.sampleIndices = [];
+            
             for (var attr in nextPart) {
                 out[attr] = nextPart[attr];
             }
@@ -8054,6 +8253,7 @@ var LevelLoader = /** @class */ (function () {
         if (newtile != null) {
             this._level.textile16.push(newtile);
         }
+        
         for (var t = 0; t < this._level.textile16.length; ++t, ++numTextiles) {
             var imageData = new ImageData(256, 256);
             for (var j = 0; j < 256; ++j) {
@@ -8129,7 +8329,7 @@ var LevelLoader = /** @class */ (function () {
                 }
             }
         }
-        if (rversion != 'TR4') {
+        if (rversion != 'TR4' && rversion != 'TR5') {
             for (var i = 0; i < this._level.objectTextures.length; ++i) {
                 var tex = this._level.objectTextures[i], tile = tex.tile & 0x7FFF;
                 var isTri = (tex.vertices[3].Xpixel == 0) &&
@@ -8142,7 +8342,7 @@ var LevelLoader = /** @class */ (function () {
         if (this._level.atlas.make) {
             var dataSky = this._level.textile[this._level.textile.length - 1];
             this._level.textile = [_Utils_Misc__WEBPACK_IMPORTED_MODULE_2__["default"].convertToPng(this._level.atlas.imageData)];
-            if (rversion == 'TR4') {
+            if (rversion == 'TR4' || rversion == 'TR5') {
                 this._level.textile.push(dataSky);
             } // the sky textile must always be the last of the this._level.textile array
             if (showTiles) {
@@ -8168,8 +8368,10 @@ var LevelLoader = /** @class */ (function () {
         delete this._level.textile8;
         delete this._level.textile16;
         delete this._level.textile32;
-        _Utils_Misc__WEBPACK_IMPORTED_MODULE_2__["default"].flatten(this._level, 'rooms.roomData.rectangles.vertices');
-        _Utils_Misc__WEBPACK_IMPORTED_MODULE_2__["default"].flatten(this._level, 'rooms.roomData.triangles.vertices');
+        if (rversion != 'TR5') {
+            _Utils_Misc__WEBPACK_IMPORTED_MODULE_2__["default"].flatten(this._level, 'rooms.roomData.rectangles.vertices');
+            _Utils_Misc__WEBPACK_IMPORTED_MODULE_2__["default"].flatten(this._level, 'rooms.roomData.triangles.vertices');
+        }
         _Utils_Misc__WEBPACK_IMPORTED_MODULE_2__["default"].flatten(this._level, 'floorData');
         _Utils_Misc__WEBPACK_IMPORTED_MODULE_2__["default"].flatten(this._level, 'meshPointers');
         _Utils_Misc__WEBPACK_IMPORTED_MODULE_2__["default"].flatten(this._level, 'meshes.lights');
@@ -8190,7 +8392,7 @@ var LevelLoader = /** @class */ (function () {
         return ds.position == ds.byteLength;
     };
     LevelLoader.prototype.replaceColouredPolys = function (tile) {
-        if (this._level.rversion == 'TR4') {
+        if (this._level.rversion == 'TR4' || this._level.rversion == 'TR5') {
             return null;
         }
         // Build a new textile from the color palette
@@ -10235,6 +10437,22 @@ var TRLevel = /** @class */ (function () {
                 color = [r / 255.0, g / 255.0, b / 255.0];
                 break;
             }
+            case 'TR5': {
+                //TR5Light
+                var lighting = lighting1;
+                var r = (lighting & 0x00ff0000) >> 16,  g = (lighting & 0x0000ff00) >> 8, b = (lighting & 0x000000ff);
+                if (r > 128) {
+                    r = 128;
+                }
+                if (g > 128) {
+                    g = 128;
+                }
+                if (b > 128) {
+                    b = 128;
+                }
+                color = [r / 128.0, g / 128.0, b / 128.0];
+                break;
+            }
         }
         return color;
     };
@@ -10273,7 +10491,11 @@ var TRLevel = /** @class */ (function () {
             }
         }
         var _loop_1 = function (m) {
-            var room = this_1.trlevel.rooms[m], info = room.info, rdata = room.roomData, data = this_1.sceneData.objects['room' + m];
+            var room = this_1.trlevel.rooms[m], info = room.info, data = this_1.sceneData.objects['room' + m];
+            if (!room.roomData)
+                var rdata = room;
+            else
+                var rdata = room.roomData; 
             this_1.gameData.matMgr.createLightUniformsForObject(this_1.gameData.objMgr.objectList['room'][m], true);
             // create portals
             var portals = data.portals, meshPortals = [];
@@ -10311,7 +10533,13 @@ var TRLevel = /** @class */ (function () {
             // static meshes in the room
             for (var s = 0; s < room.staticMeshes.length; ++s) {
                 var staticMesh = room.staticMeshes[s], x = staticMesh.x, y = -staticMesh.y, z = -staticMesh.z, rot = ((staticMesh.rotation & 0xC000) >> 14) * 90, objectID = staticMesh.objectID;
-                var mflags = this_1.sceneData.objects['staticmesh' + objectID].flags, nonCollisionable = (mflags & 1) != 0, visible = (mflags & 2) != 0;
+                var currObj = this_1.sceneData.objects['staticmesh' + objectID];
+                if (currObj != undefined) {
+                    var mflags = this_1.sceneData.objects['staticmesh' + objectID].flags, nonCollisionable = (mflags & 1) != 0, visible = (mflags & 2) != 0;
+                }
+                else {
+                    var nonCollisionable = true, visible = false;
+                }
                 if (!visible) {
                     continue;
                 }
@@ -10326,15 +10554,16 @@ var TRLevel = /** @class */ (function () {
                 }
             }
             // sprites in the room
-            for (var s = 0; s < rdata.sprites.length; ++s) {
-                var sprite = rdata.sprites[s], spriteIndex = sprite.texture, rvertex = rdata.vertices[sprite.vertex], lighting = this_1.trlevel.rversion == 'TR1' ? rvertex.lighting1 : rvertex.lighting2;
-                var obj = this_1.objMgr.createSprite(spriteIndex, m, this_1.convertLighting(lighting), true);
-                if (obj != null) {
-                    obj.visible = !data.isAlternateRoom;
-                    obj.setPosition([rvertex.vertex.x + info.x, -rvertex.vertex.y, -rvertex.vertex.z - info.z]);
-                    obj.matrixAutoUpdate = true;
+            if (rdata.sprites != undefined)
+                for (var s = 0; s < rdata.sprites.length; ++s) {
+                    var sprite = rdata.sprites[s], spriteIndex = sprite.texture, rvertex = rdata.vertices[sprite.vertex], lighting = this_1.trlevel.rversion == 'TR1' ? rvertex.lighting1 : rvertex.lighting2;
+                    var obj = this_1.objMgr.createSprite(spriteIndex, m, this_1.convertLighting(lighting), true);
+                    if (obj != null) {
+                        obj.visible = !data.isAlternateRoom;
+                        obj.setPosition([rvertex.vertex.x + info.x, -rvertex.vertex.y, -rvertex.vertex.z - info.z]);
+                        obj.matrixAutoUpdate = true;
+                    }
                 }
-            }
         };
         var this_1 = this;
         for (var m = 0; m < this.trlevel.rooms.length; ++m) {
