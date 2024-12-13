@@ -10398,7 +10398,7 @@ var TRLevel = /** @class */ (function () {
     };
     TRLevel.prototype.convertIntensity = function (intensity) {
         var l = [intensity / 8192.0, intensity / 8192.0, intensity / 8192.0];
-        if (this.trlevel.rversion == 'TR3' || this.trlevel.rversion == 'TR4') {
+        if (this.trlevel.rversion == 'TR3' || this.trlevel.rversion == 'TR4' || this.trlevel.rversion == 'TR5') {
             var b = ((intensity & 0x7C00) >> 10) << 3, g = ((intensity & 0x03E0) >> 5) << 3, r = (intensity & 0x001F) << 3;
             l = [r / 255, g / 255, b / 255];
         }

@@ -3721,12 +3721,13 @@ var Ponytail = /** @class */ (function (_super) {
     Ponytail.prototype.init = function (lstObjs) {
         var id = this.nbhv.id, offsets_ = this.nbhv.offsets.offset, offsets = Array.isArray(offsets_) ? offsets_ : [offsets_], fixToHead = this.nbhv.fixtohead === 'true';
         _Constants__WEBPACK_IMPORTED_MODULE_3__.ObjectID.LaraBraid = parseInt(id);
-        if (this.gameData.bhvMgr.getBehaviour("Lara") != undefined)
+        if (this.gameData.bhvMgr.getBehaviour("Lara") != undefined) {
             var lara = this.gameData.bhvMgr.getBehaviour("Lara")[0].getObject();
             for (var i = 0; i < offsets.length; ++i) {
                 var offset = __assign({ "x": "0", "y": "0", "z": "0" }, offsets[i]);
                 this._braids.push(new _Player_Braid__WEBPACK_IMPORTED_MODULE_2__.Braid(lara, [parseFloat(offset.x), parseFloat(offset.y), parseFloat(offset.z)], this.gameData, fixToHead));
             }
+        }
         return [_Behaviour__WEBPACK_IMPORTED_MODULE_0__.BehaviourRetCode.keepBehaviour, null];
     };
     Ponytail.prototype.preWarm = function () {
