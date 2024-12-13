@@ -128,8 +128,8 @@ const descr = {
                 'layerBBoxZ2', 'float32',
                 'NA', ['', 'uint32', 4],
             ], 'numLayers'],
-            'faces', ['', 'uint8', 
-                function(struct: any, dataStream: any, type: any) { return (struct.numRectangles) + (struct.numTriangles); }],
+            'faces', ['', 'uint16', 
+                function(struct: any, dataStream: any, type: any) { return (struct.numRectangles*5) + (struct.numTriangles*4); }],
             'vertices', ['', [
                     'vertex', ['x', 'float', 'y', 'float', 'z', 'float'],
                     'normal', ['x', 'float', 'y', 'float', 'z', 'float'],

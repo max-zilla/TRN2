@@ -115,7 +115,18 @@ const descr = {
                 'objectID', 'uint16'
             ], 'numStaticMeshes'],
             'layerData', ['', [
-            
+                'numLayerVertices', 'uint32',
+                'NA', 'uint16',
+                'numLayerRectangles', 'uint16',
+                'numLayerTriangles', 'uint16',
+                'NA', ['', 'uint16', 3],
+                'layerBBoxX1', 'float32',
+                'layerBBoxY1', 'float32',
+                'layerBBoxZ1', 'float32',
+                'layerBBoxX2', 'float32',
+                'layerBBoxY2', 'float32',
+                'layerBBoxZ2', 'float32',
+                'NA', ['', 'uint32', 4],
             ], 'numLayers'],
             'faces', ['', 'uint8', 
                 function(struct: any, dataStream: any, type: any) { return (struct.numRectangles) + (struct.numTriangles); }],

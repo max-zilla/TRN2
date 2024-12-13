@@ -7421,8 +7421,6 @@ var descr = {
     part1: [
         'version', 'uint32',
         'numRoomTextiles', 'uint16',
-    ],
-    testPart: [
         'numObjTextiles', 'uint16',
         'numBumpTextiles', 'uint16',
         'textile32_uncompSize', 'uint32',
@@ -7439,117 +7437,187 @@ var descr = {
         'textile32misc_compSize', 'uint32',
         '',
         function (dataStream, struct) { _LevelLoader__WEBPACK_IMPORTED_MODULE_0__.LevelLoader.unzip(dataStream, struct, struct.textile32misc_compSize); return ''; },
-        'textile32misc', ['', ['', 'uint32', 256 * 256], 2],
+        'textile32misc', ['', ['', 'uint32', 256 * 256], 3],
         'laraType', 'uint16',
         'weatherType', 'uint16',
-        'padding',
-        function (dataStream, struct) { dataStream.position += 28; return ''; },
+        'padding', ['', 'uint8', 28],
         'levelData_uncompSize', 'uint32',
         'levelData_compSize', 'uint32',
-        '',
-        function (dataStream, struct) { _LevelLoader__WEBPACK_IMPORTED_MODULE_0__.LevelLoader.unzip(dataStream, struct, struct.levelData_compSize); return ''; },
-        'unused', 'uint32',
-        'numRooms', 'uint16',
-        'rooms',
-        ['', [
-                'xela',
-                function (dataStream, struct) { dataStream.position += 4; return ''; },
-                'roomDataSize', 'uint32',
-                'NA', 'uint32',
-                'endSDOffset', 'uint32',
-                'startSDOffset', 'uint32',
-                'NA', 'uint32',
-                'endPortalOffset', 'uint32',
-                'info', ['x', 'int32', 'y', 'int32', 'z', 'int32', 'yBottom', 'int32', 'yTop', 'int32'],
-                'numZsectors', 'uint16',
-                'numXsectors', 'uint16',
-                'roomColour', 'uint32',
-                'numLights', 'uint16',
-                'numStaticMeshes', 'uint16',
-                'reverbInfo', 'uint8',
-                'alternateGroup', 'uint8',
-                'waterScheme', 'uint16',
-                'NA', ['', 'uint32', 5],
-                'alternateRoom', 'int16',
-                'flags', 'int16',
-                'NA', ['', 'uint32', 4],
-                'NA', ['', 'uint16', 2],
-                'roomX', 'float32',
-                'roomY', 'float32',
-                'roomZ', 'float32',
-                'NA', ['', 'uint32', 6],
-                'numTriangles', 'uint32',
-                'numRectangles', 'uint32',
-                'NA', 'uint32',
-                'lightDataSize', 'uint32',
-                'numLights2', 'uint32',
-                'NA', 'uint32',
-                'roomYTop', 'uint32',
-                'roomYBottom', 'uint32',
-                'numLayers', 'uint32',
-                'layerOffset', 'uint32',
-                'verticesOffset', 'uint32',
-                'polyOffset', 'uint32',
-                'polyOffset2', 'uint32',
-                'numVertices', 'uint32',
-                'NA', ['', 'uint32', 6],
-                'lights', ['', [
-                        'x', 'float32',
-                        'y', 'float32',
-                        'z', 'float32',
-                        'color', ['r', 'float32', 'g', 'float32', 'b', 'float32'],
-                        'NA', 'uint32',
-                        'in', 'float32',
-                        'out', 'float32',
-                        'radIn', 'float32',
-                        'radOut', 'float32',
-                        'range', 'float32',
-                        'dx', 'float32',
-                        'dy', 'float32',
-                        'dz', 'float32',
-                        'x2', 'uint32',
-                        'y2', 'uint32',
-                        'z2', 'uint32',
-                        'dx2', 'uint32',
-                        'dy2', 'uint32',
-                        'dz2', 'uint32',
-                        'lightType', 'uint8',
-                        'NA', ['', 'uint8', 3]
-                    ], 'numLights'],
-                'sectorList',
-                ['', [
-                        'FDindex', 'uint16',
-                        'boxIndex', 'uint16',
-                        'roomBelow', 'uint8',
-                        'floor', 'int8',
-                        'roomAbove', 'uint8',
-                        'ceiling', 'int8'
-                    ], function (struct, dataStream, type) { return struct.numZsectors * struct.numXsectors; }],
-                'numPortals', 'uint16',
-                'portals', ['', [
-                        'adjoiningRoom', 'uint16',
-                        'normal', ['x', 'int16', 'y', 'int16', 'z', 'int16'],
-                        'vertices', ['', ['x', 'int16', 'y', 'int16', 'z', 'int16'], 4]
-                    ], 'numPortals'],
-                'NA', 'uint16',
-                'staticMeshes', ['', [
-                        'x', 'int32',
-                        'y', 'int32',
-                        'z', 'int32',
-                        'rotation', 'uint16',
-                        'intensity1', 'uint16',
-                        'intensity2', 'uint16',
-                        'objectID', 'uint16'
-                    ], 'numStaticMeshes'],
-                'layerData', ['', [], 'numLayers'],
-                'faces',
-                ['', 'uint8', function (struct, dataStream, type) { return (struct.numRectangles) + (struct.numTriangles); }],
-                'vertices', ['', [
-                        'vertex', ['x', 'float', 'y', 'float', 'z', 'float'],
-                        'normal', ['x', 'float', 'y', 'float', 'z', 'float'],
-                        'color', 'uint32'
-                    ], 'numVertices'],
-            ], 'numRooms'],
+        'NA', 'uint32',
+        'numRooms', 'uint32',
+        'rooms', ['', [
+            'xela', ['', 'uint8', 4],
+            'roomDataSize', 'uint32',
+            '', function (dataStream, struct) {
+                console.log("------------ ROOM START POS: " + dataStream.position)
+                return '';
+            },
+            'NA', 'uint32',
+            'endSDOffset', 'uint32',
+            'startSDOffset', 'uint32',
+            'NA', 'uint32',
+            'endPortalOffset', 'uint32',
+            'info', ['x', 'int32', 'y', 'int32', 'z', 'int32', 'yBottom', 'int32', 'yTop', 'int32'],
+            'numZsectors', 'uint16',
+            'numXsectors', 'uint16',
+            'roomColour', 'uint32',
+            'numLights', 'uint16',
+            'numStaticMeshes', 'uint16',
+            'reverbInfo', 'uint8',
+            'alternateGroup', 'uint8',
+            'waterScheme', 'uint16',
+            'NA', ['', 'uint8', 20],
+            'alternateRoom', 'uint16',
+            'flags', 'uint16',
+            'NA', ['', 'uint8', 20],
+            'roomX', 'float32',
+            'roomY', 'float32',
+            'roomZ', 'float32',
+            'NA', ['', 'uint8', 24],
+            'numTriangles', 'uint32',
+            'numRectangles', 'uint32', // 3452816845 == null room.
+            'roomLights', 'uint32',
+            'fogBulbs', 'uint32',
+            'numLights2', 'uint32',
+            'numFogBulbs', 'uint32',
+            'roomYTop', 'float32',
+            'roomYBottom', 'float32',
+            'numLayers', 'uint32',
+            'layerOffset', 'uint32',
+            'verticesOffset', 'uint32',
+            'polyOffset', 'uint32',
+            'polyOffset2', 'uint32',
+            'numVertices', 'uint32',
+            'NA', ['', 'uint32', 4],
+            // end tr5_room_header
+            '', function (dataStream, struct) {
+                console.log(struct.xela)
+                console.log(struct)
+                console.log(struct.roomDataSize);
+                const startAddr = dataStream.position - 208;
+                console.log(startAddr + " -> " + (startAddr + struct.roomDataSize));
+                console.log('vertices addr: ' + (dataStream.position + struct.verticesOffset))
+                console.log(struct.numVertices / 28);
+                return '';
+            },
+            'lights', ['', [
+                    'x', 'float32',
+                    'y', 'float32',
+                    'z', 'float32',
+                    'color', ['r', 'float32', 'g', 'float32', 'b', 'float32'],
+                    'NA', 'uint32',
+                    'in', 'float32',
+                    'out', 'float32',
+                    'radIn', 'float32',
+                    'radOut', 'float32',
+                    'range', 'float32',
+                    'dx', 'float32',
+                    'dy', 'float32',
+                    'dz', 'float32',
+                    'x2', 'int32',
+                    'y2', 'int32',
+                    'z2', 'int32',
+                    'dx2', 'int32',
+                    'dy2', 'int32',
+                    'dz2', 'int32',
+                    'lightType', 'uint8',
+                    'NA', ['', 'uint8', 3]
+                ], 'numLights'],
+            'sectorList',
+            ['', [
+                    'FDindex', 'uint16',
+                    'boxIndex', 'uint16',
+                    'roomBelow', 'uint8',
+                    'floor', 'int8',
+                    'roomAbove', 'uint8',
+                    'ceiling', 'int8'
+                ], function (struct, dataStream, type) { 
+                    return struct.numZsectors * struct.numXsectors; 
+                }],
+            'numPortals', 'uint16',
+            'portals', ['', [
+                    'adjoiningRoom', 'uint16',
+                    'normal', ['x', 'int16', 'y', 'int16', 'z', 'int16'],
+                    'vertices', ['', ['x', 'int16', 'y', 'int16', 'z', 'int16'], 4]
+                ], 'numPortals'],
+            'NA', 'uint16',
+            'staticMeshes', ['', [
+                    'x', 'int32',
+                    'y', 'int32',
+                    'z', 'int32',
+                    'rotation', 'uint16',
+                    'color', 'uint16',
+                    'unused', 'uint16',
+                    'objectID', 'uint16'
+                ], 'numStaticMeshes'],
+            'layerData', ['', [
+                    'numLayerVertices', 'uint16',
+                    'NA', ['', 'uint16', 2],
+                    'numLayerRectangles', 'uint16',
+                    'numLayerTriangles', 'uint16',
+                    'NA', ['', 'uint16', 3],
+                    'layerBBoxX1', 'float32',
+                    'layerBBoxY1', 'float32',
+                    'layerBBoxZ1', 'float32',
+                    'layerBBoxX2', 'float32',
+                    'layerBBoxY2', 'float32',
+                    'layerBBoxZ2', 'float32',
+                    'NA', ['', 'uint32', 4],
+                ], 'numLayers'],
+            'faces', ['', 'uint16', function (struct, dataStream, type) { 
+                    if (struct.numRectangles < 3452816845)
+                        return (struct.numRectangles * 6) + (struct.numTriangles * 5);
+                    else
+                        return 0;
+                }],
+            '',
+            function (dataStream, struct) { 
+                var faceSize = if (struct.numRectangles < 3452816845)
+                    ((struct.numRectangles * 6) + (struct.numTriangles * 5)) * 2;
+                else
+                    0;
+                var layerSize = struct.numLayers * 56;
+                var meshSize = struct.numStaticMeshes * 20;
+                var portalSize = struct.numPortals * 32;
+                var lightSize = struct.numLights * 88;
+                var sectorSize = struct.numZsectors * struct.numXsectors * 8;
+                var headerSize = 208;
+                
+                var startAddr = dataStream.position - headerSize - faceSize - layerSize - meshSize - portalSize - lightSize - sectorSize - 4;
+                console.log("START 1: " + startAddr)
+                var byteGap = (startAddr + headerSize + struct.verticesOffset) - dataStream.position;
+                console.log("Adjusting " + dataStream.position + " to " + (dataStream.position + byteGap) + " ("+ byteGap+")");
+                dataStream.position += byteGap;
+                return ''; 
+            },
+            'vertices', ['', [
+                    'vertex', ['x', 'float32', 'y', 'float32', 'z', 'float32'],
+                    'normal', ['x', 'float32', 'y', 'float32', 'z', 'float32'],
+                    'color', 'uint32'
+                ], 
+                function (struct, dataStream, type) { 
+                    return (struct.numVertices / 28); 
+                }],
+            '', 
+            function (dataStream, struct) { 
+                var faceSize = ((struct.numRectangles * 6) + (struct.numTriangles * 5)) * 2
+                var layerSize = struct.numLayers * 56;
+                var meshSize = struct.numStaticMeshes * 20;
+                var portalSize = struct.numPortals * 32;
+                var lightSize = struct.numLights * 88;
+                var sectorSize = struct.numZsectors * struct.numXsectors * 8;
+                var headerSize = 208;
+                
+                var startAddr2 = dataStream.position - struct.numVertices - struct.verticesOffset - headerSize;
+                console.log("START 2: " + startAddr2)
+                var byteGap = (startAddr2 + struct.roomDataSize) - dataStream.position;
+                dataStream.position += byteGap;
+                return ''; 
+            },
+        ], 'numRooms'],
+        
+    ],
+    part1b: [
         'numFloorData', 'uint32',
         'floorData', ['', 'uint16', 'numFloorData'],
         'numMeshData', 'uint32'
@@ -7786,13 +7854,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _LevelDescription_TR5__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./LevelDescription/TR5 */ "../src/Loading/LevelDescription/TR5.ts");
 
 
-
-
-
-
-
-
-
 var gameFormatDescr = {
     "TR1": _LevelDescription_TR1__WEBPACK_IMPORTED_MODULE_3__["default"],
     "TR1TUB": _LevelDescription_TR1Tub__WEBPACK_IMPORTED_MODULE_4__["default"],
@@ -7840,7 +7901,7 @@ var LevelLoader = /** @class */ (function () {
             'version', 'uint32'
         ]);
         var version = hdr.version;
-        var rversion = 'TR5';
+        var rversion = 'Unknown';
         switch (version) {
             case 0x00000020:
                 rversion = 'TR1';
@@ -7857,9 +7918,13 @@ var LevelLoader = /** @class */ (function () {
             case 0xFF180038:
                 rversion = 'TR3';
                 break;
-            case 0x00345254:
-                rversion = 'TR4';
+            case 0x00345254: {
+                if (fname.toLowerCase().indexOf('.trc') >= 0)
+                    rversion = 'TR5';
+                else
+                    rversion = 'TR4';
                 break;
+            }
         }
         ds.seek(0);
         var rversionLoader = rversion;
@@ -7867,10 +7932,14 @@ var LevelLoader = /** @class */ (function () {
             rversionLoader = 'TR1TUB';
         }
         try {
-            console.log('here we go');
-            console.log(rversionLoader);
             var out = ds.readStruct(gameFormatDescr[rversionLoader].part1);
             console.log('first part ok', out);
+            var savepos = ds.position;
+            
+            var raw_struct = gameFormatDescr[rversionLoader].part1b;
+            var out = ds.readStruct(raw_struct);
+            console.log('firstB part ok', out);
+
             var savepos = ds.position;
             ds.position += out.numMeshData * 2;
             out.numMeshPointers = ds.readUint32();
