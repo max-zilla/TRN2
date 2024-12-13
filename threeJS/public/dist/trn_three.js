@@ -4901,11 +4901,11 @@ var LevelConverter = /** @class */ (function () {
                 roomJSON.colors.push(vertexInfo.color2[0], vertexInfo.color2[1], vertexInfo.color2[2]);
                 roomJSON._flags.push(vertexInfo.flag[0], vertexInfo.flag[1], vertexInfo.flag[2], vertexInfo.flag[3]);
             }
-            rdata.rectangles = [];
-            rdata.triangles = [];
             // create the tri/quad faces
             if (this.sc.data.trlevel.rversion == 'TR5') {
                 // Collect faces from the layers
+                rdata.rectangles = [];
+                rdata.triangles = [];
                 var faceStart = 0;
                 for (var v = 0; v < rdata.layerData.length; ++v) {
                     var rlayer = rdata.layerData[v];
@@ -4935,24 +4935,6 @@ var LevelConverter = /** @class */ (function () {
                 }
                 // Convert vertices from float to int16
                 this.helper.makeFacesTR5(roomJSON, [rdata.rectangles, rdata.triangles], tiles2material, this.sc.data.trlevel.objectTextures, this.sc.data.trlevel.mapObjTexture2AnimTexture, 0);
-            /*
-                    if (ofstvert === void 0) { ofstvert = 0; }
-                    for (var a = 0; a < facearrays.length; ++a) {
-                        var lstface = facearrays[a];
-                        var _loop_1 = function (i) {
-                            var o = lstface[i], twoSided = (o.texture & 0x8000) != 0, tex = objectTextures[o.texture & 0x7FFF];
-                            this_1.makeFace(obj, o, tiles2material, tex, mapObjTexture2AnimTexture, function (idx) { return o.vertices.length - 1 - idx; }, ofstvert);
-                            if (twoSided) {
-                                this_1.makeFace(obj, o, tiles2material, tex, mapObjTexture2AnimTexture, function (idx) { return idx; }, ofstvert);
-                            }
-                        };
-                        var this_1 = this;
-                        for (var i = 0; i < lstface.length; ++i) {
-                            _loop_1(i);
-                        }
-                    }
-            */
-            
             }
             else
                 this.helper.makeFaces(roomJSON, [rdata.rectangles, rdata.triangles], tiles2material, this.sc.data.trlevel.objectTextures, this.sc.data.trlevel.mapObjTexture2AnimTexture, 0);
@@ -5619,13 +5601,10 @@ var LevelConverter = /** @class */ (function () {
         }
         this.objects.push({
             "uuid": "camera1",
-            "type": "PerspectiveCamera",
+            "type": "OrthographicCamera",
             "name": "camera1",
-            "fov": this.confMgr.float('camera > fov', true, 50),
-            "near": this.confMgr.float('camera > neardist', true, 50),
-            "far": this.confMgr.float('camera > fardist', true, 10000),
             "position": [0, 0, 0],
-            "quaternion": [0, 0, 0, 1]
+            "quaternion": [0, 180, 0, 1]
         });
         this.sc.data.objects['camera1'] = {
             "type": "camera",
@@ -12982,6 +12961,34 @@ var SceneParser = /** @class */ (function (_super) {
                 break;
             case 'PerspectiveCamera':
                 object = new three__WEBPACK_IMPORTED_MODULE_0__.PerspectiveCamera(data.fov, data.aspect, data.near, data.far);
+                tobject = new _Camera__WEBPACK_IMPORTED_MODULE_1__["default"](object);
+                if (data.focus !== undefined) {
+                    object.focus = data.focus;
+                }
+                if (data.zoom !== undefined) {
+                    object.zoom = data.zoom;
+                }
+                if (data.filmGauge !== undefined) {
+                    object.filmGauge = data.filmGauge;
+                }
+                if (data.filmOffset !== undefined) {
+                    object.filmOffset = data.filmOffset;
+                }
+                if (data.view !== undefined) {
+                    object.view = Object.assign({}, data.view);
+                }
+                break;
+            case 'OrthographicCamera':
+                // CTRL+SHIFT+R after changing these
+                // Standard Zoom
+                object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-35000, 35000, 15000, -15000, 0, 500000);
+
+                // Detail Zoom-In
+                //object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-11500, 11500, 5000, -5000, 0, 500000);
+
+                // Overview Zoom-Out
+                // object = new three__WEBPACK_IMPORTED_MODULE_0__["OrthographicCamera"](-65000, 65000, 30000, -30000, 0, 500000);
+
                 tobject = new _Camera__WEBPACK_IMPORTED_MODULE_1__["default"](object);
                 if (data.focus !== undefined) {
                     object.focus = data.focus;

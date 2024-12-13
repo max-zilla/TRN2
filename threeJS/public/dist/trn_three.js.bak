@@ -4901,11 +4901,11 @@ var LevelConverter = /** @class */ (function () {
                 roomJSON.colors.push(vertexInfo.color2[0], vertexInfo.color2[1], vertexInfo.color2[2]);
                 roomJSON._flags.push(vertexInfo.flag[0], vertexInfo.flag[1], vertexInfo.flag[2], vertexInfo.flag[3]);
             }
-            rdata.rectangles = [];
-            rdata.triangles = [];
             // create the tri/quad faces
             if (this.sc.data.trlevel.rversion == 'TR5') {
                 // Collect faces from the layers
+                rdata.rectangles = [];
+                rdata.triangles = [];
                 var faceStart = 0;
                 for (var v = 0; v < rdata.layerData.length; ++v) {
                     var rlayer = rdata.layerData[v];
@@ -10398,7 +10398,7 @@ var TRLevel = /** @class */ (function () {
     };
     TRLevel.prototype.convertIntensity = function (intensity) {
         var l = [intensity / 8192.0, intensity / 8192.0, intensity / 8192.0];
-        if (this.trlevel.rversion == 'TR3' || this.trlevel.rversion == 'TR4') {
+        if (this.trlevel.rversion == 'TR3' || this.trlevel.rversion == 'TR4' || this.trlevel.rversion == 'TR5') {
             var b = ((intensity & 0x7C00) >> 10) << 3, g = ((intensity & 0x03E0) >> 5) << 3, r = (intensity & 0x001F) << 3;
             l = [r / 255, g / 255, b / 255];
         }
