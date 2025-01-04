@@ -5906,6 +5906,9 @@ var LevelConverterHelper = /** @class */ (function () {
         if (tex == undefined)
             return
         var vertices = oface.vertices, texture = oface.texture & 0x7FFF, tile = tex.tile & 0x7FFF, origTile = tex.origTile;
+        //console.log(vertices);
+        //console.log(tex.vertices[fidx(0)]);
+        //blerg()
         if (origTile == undefined) {
             origTile = tile;
         }
@@ -8112,6 +8115,17 @@ var LevelLoader = /** @class */ (function () {
             var out = ds.readStruct(gameFormatDescr[rversionLoader].part1);
             console.log('first part ok', out);
             var savepos = ds.position;
+            
+            // TR5 vertices are uint16
+            if (rversion == 'TR5') {
+                for (var r=0; r < out.rooms.length; ++r) {
+                    for (var v=0; v < out.rooms[r].vertices.length; ++v) {
+                        out.rooms[r].vertices[v].vertex.x = (out.rooms[r].vertices[v].vertex.x & 0xFFFF) << 16 >> 16;
+                        out.rooms[r].vertices[v].vertex.y = (out.rooms[r].vertices[v].vertex.y & 0xFFFF) << 16 >> 16;
+                        out.rooms[r].vertices[v].vertex.z = (out.rooms[r].vertices[v].vertex.z & 0xFFFF) << 16 >> 16;
+                    }
+                }
+            }
 
             var savepos = ds.position;
             ds.position += out.numMeshData * 2;
@@ -10384,7 +10398,7 @@ var TRLevel = /** @class */ (function () {
         return l;
     };
     TRLevel.prototype.convertLighting = function (lighting1) {
-        var color = [0, 0, 0];
+        var color = [20, 20,20];
         switch (this.trlevel.rversion) {
             case 'TR1':
             case 'TR2': {
